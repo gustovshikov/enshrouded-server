@@ -1,0 +1,32 @@
+name: Backup regression tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/default/enshrouded-backup
+      - scripts/default/common
+      - scripts/default/defaults
+      - tests/test_backup.py
+      - .github/workflows/backup-tests.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/default/enshrouded-backup
+      - scripts/default/common
+      - scripts/default/defaults
+      - tests/test_backup.py
+      - .github/workflows/backup-tests.yml
+
+permissions:
+  contents: read
+
+jobs:
+  backup-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check test prerequisites
+        run: command -v bash jq zip zipnote
+      - name: Test current and legacy save backups
+        run: python3 -m unittest discover -s tests -p test_backup.py -v
