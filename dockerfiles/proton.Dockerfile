@@ -66,8 +66,10 @@ COPY --from=builder /tmp/proton /usr/local/bin
 COPY --from=builder /etc/machine-id /etc/machine-id
 
 # Both Proton and the native Steam client must support the game's interface.
-COPY tests/check-steam-interfaces.py /usr/local/etc/enshrouded/check-steam-interfaces.py
-RUN python3 /usr/local/etc/enshrouded/check-steam-interfaces.py
+RUN python3 -c 'from pathlib import Path; \
+    assert all(b"SteamUtils011" in Path(p).read_bytes() for p in ( \
+        "/usr/local/bin/files/lib/wine/x86_64-unix/lsteamclient.so", \
+        "/home/enshrouded/.steam/sdk64/steamclient.so")), "missing SteamUtils011"'
 
 COPY ../supervisord.conf /etc/supervisor/supervisord.conf
 COPY --chmod=755 ../scripts/default/* ../scripts/proton/* /usr/local/etc/enshrouded/
